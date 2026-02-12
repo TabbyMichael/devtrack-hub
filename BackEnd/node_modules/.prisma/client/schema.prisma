@@ -55,6 +55,9 @@ model Session {
   endTime         DateTime?
   durationMinutes Int?      // Computed/stored on stop
   notes           String?
+  isPaused        Boolean   @default(false)
+  lastPauseTime   DateTime?
+  totalPauseSeconds Int       @default(0)
   projectId       String
   project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId          String

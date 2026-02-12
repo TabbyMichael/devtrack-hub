@@ -7,6 +7,11 @@ interface SessionState {
   activeSession: ActiveSession | null;
   startSession: (projectId: string, projectName: string) => void;
   stopSession: (notes?: string) => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
+  clearSessions: () => void;
+  addManualSession: (session: Omit<Session, 'id'>) => void;
+  deleteSession: (id: string) => void;
 }
 
 const mockSessions: Session[] = [
@@ -27,19 +32,60 @@ export const useSessionStore = create<SessionState>()(persist((set) => ({
   startSession: (projectId, projectName) =>
     set({
       activeSession: {
+        id: String(Date.now()),
         projectId,
         projectName,
         startTime: new Date().toISOString(),
+        isPaused: false,
+        totalPauseSeconds: 0,
       },
+    }),
+
+  pauseSession: () =>
+    set((state) => {
+      if (!state.activeSession || state.activeSession.isPaused) return state;
+      return {
+        activeSession: {
+          ...state.activeSession,
+          isPaused: true,
+          lastPauseTime: new Date().toISOString(),
+        },
+      };
+    }),
+
+  resumeSession: () =>
+    set((state) => {
+      if (!state.activeSession || !state.activeSession.isPaused) return state;
+      const now = new Date();
+      const lastPauseDate = new Date(state.activeSession.lastPauseTime!);
+      const additionalPauseSeconds = Math.round((now.getTime() - lastPauseDate.getTime()) / 1000);
+      return {
+        activeSession: {
+          ...state.activeSession,
+          isPaused: false,
+          lastPauseTime: undefined,
+          totalPauseSeconds: state.activeSession.totalPauseSeconds + additionalPauseSeconds,
+        },
+      };
     }),
 
   stopSession: (notes) =>
     set((state) => {
       if (!state.activeSession) return state;
+
+      let totalPauseSeconds = state.activeSession.totalPauseSeconds;
+      if (state.activeSession.isPaused && state.activeSession.lastPauseTime) {
+        const lastPauseDate = new Date(state.activeSession.lastPauseTime);
+        totalPauseSeconds += Math.round((Date.now() - lastPauseDate.getTime()) / 1000);
+      }
+
       const start = new Date(state.activeSession.startTime);
-      const duration = Math.round((Date.now() - start.getTime()) / 60000);
+      const totalElapsedMs = Date.now() - start.getTime();
+      const activeMs = totalElapsedMs - (totalPauseSeconds * 1000);
+      const duration = Math.max(0, Math.round(activeMs / 60000));
+
       const newSession: Session = {
-        id: String(Date.now()),
+        id: state.activeSession.id || String(Date.now()),
         projectId: state.activeSession.projectId,
         projectName: state.activeSession.projectName,
         startTime: state.activeSession.startTime,
@@ -52,4 +98,19 @@ export const useSessionStore = create<SessionState>()(persist((set) => ({
         activeSession: null,
       };
     }),
+  clearSessions: () => set({ sessions: [] }),
+  addManualSession: (session) =>
+    set((state) => ({
+      sessions: [
+        {
+          ...session,
+          id: String(Date.now()),
+        },
+        ...state.sessions,
+      ],
+    })),
+  deleteSession: (id) =>
+    set((state) => ({
+      sessions: state.sessions.filter((s) => s.id !== id),
+    })),
 }), { name: 'devtrack-sessions' }));

@@ -8,11 +8,12 @@ interface StatsCardProps {
   icon: LucideIcon;
   trend?: 'up' | 'down' | 'neutral';
   accentColor?: string;
+  className?: string;
 }
 
-const StatsCard = ({ title, value, subtitle, icon: Icon, accentColor }: StatsCardProps) => {
+const StatsCard = ({ title, value, subtitle, icon: Icon, accentColor, className }: StatsCardProps) => {
   return (
-    <div className="rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/20">
+    <div className={cn("rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/20", className)}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>

@@ -13,6 +13,8 @@ export interface Project {
   totalHours: number;
   sessionsCount: number;
   createdAt: string;
+  status: 'active' | 'archived';
+  priority: 'low' | 'medium' | 'high';
 }
 
 export interface Session {
@@ -26,7 +28,11 @@ export interface Session {
 }
 
 export interface ActiveSession {
+  id?: string;
   projectId: string;
   projectName: string;
   startTime: string;
+  isPaused: boolean;
+  lastPauseTime?: string;
+  totalPauseSeconds: number;
 }

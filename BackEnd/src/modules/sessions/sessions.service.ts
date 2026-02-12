@@ -99,8 +99,17 @@ export class SessionsService {
         }
 
         const endTime = new Date();
-        const durationMs = endTime.getTime() - session.startTime.getTime();
-        const durationMinutes = Math.round(durationMs / 60000);
+        let totalPauseSeconds = session.totalPauseSeconds;
+
+        // If currently paused, add the time from last pause to now
+        if (session.isPaused && session.lastPauseTime) {
+            const currentPauseMs = endTime.getTime() - session.lastPauseTime.getTime();
+            totalPauseSeconds += Math.round(currentPauseMs / 1000);
+        }
+
+        const totalElapsedMs = endTime.getTime() - session.startTime.getTime();
+        const durationMs = totalElapsedMs - (totalPauseSeconds * 1000);
+        const durationMinutes = Math.max(0, Math.round(durationMs / 60000));
 
         // Validate duration
         if (durationMinutes < this.MIN_DURATION_MINUTES) {
@@ -122,6 +131,8 @@ export class SessionsService {
                 endTime,
                 durationMinutes,
                 notes: dto.notes,
+                isPaused: false,
+                totalPauseSeconds,
             },
             select: {
                 id: true,
@@ -130,6 +141,8 @@ export class SessionsService {
                 durationMinutes: true,
                 notes: true,
                 projectId: true,
+                isPaused: true,
+                totalPauseSeconds: true,
                 project: {
                     select: {
                         id: true,
@@ -144,6 +157,61 @@ export class SessionsService {
         // Emit WebSocket event
         this.sessionGateway.emitSessionStopped(userId, updatedSession);
 
+        return updatedSession;
+    }
+
+    async pause(userId: string, sessionId: string) {
+        const session = await this.prisma.session.findFirst({
+            where: { id: sessionId, userId, endTime: null },
+        });
+
+        if (!session) {
+            throw new NotFoundException('Active session not found');
+        }
+
+        if (session.isPaused) {
+            throw new BadRequestException('Session already paused');
+        }
+
+        const updatedSession = await this.prisma.session.update({
+            where: { id: sessionId },
+            data: {
+                isPaused: true,
+                lastPauseTime: new Date(),
+            },
+        });
+
+        this.sessionGateway.emitSessionPaused(userId, updatedSession);
+        return updatedSession;
+    }
+
+    async resume(userId: string, sessionId: string) {
+        const session = await this.prisma.session.findFirst({
+            where: { id: sessionId, userId, endTime: null },
+        });
+
+        if (!session) {
+            throw new NotFoundException('Active session not found');
+        }
+
+        if (!session.isPaused) {
+            throw new BadRequestException('Session is not paused');
+        }
+
+        const now = new Date();
+        const pauseDurationMs = now.getTime() - (session.lastPauseTime?.getTime() || now.getTime());
+        const additionalPauseSeconds = Math.round(pauseDurationMs / 1000);
+
+        const updatedSession = await this.prisma.session.update({
+            where: { id: sessionId },
+            data: {
+                isPaused: false,
+                lastPauseTime: null,
+                totalPauseSeconds: session.totalPauseSeconds + additionalPauseSeconds,
+            },
+        });
+
+        this.sessionGateway.emitSessionResumed(userId, updatedSession);
         return updatedSession;
     }
 
@@ -267,6 +335,9 @@ export class SessionsService {
                 id: true,
                 startTime: true,
                 projectId: true,
+                isPaused: true,
+                lastPauseTime: true,
+                totalPauseSeconds: true,
                 project: {
                     select: {
                         id: true,
@@ -282,9 +353,16 @@ export class SessionsService {
             return null;
         }
 
-        // Calculate elapsed time
+        // Calculate elapsed time excluding pause time
+        let totalPauseSeconds = session.totalPauseSeconds;
+        if (session.isPaused && session.lastPauseTime) {
+            const currentPauseMs = Date.now() - session.lastPauseTime.getTime();
+            totalPauseSeconds += Math.round(currentPauseMs / 1000);
+        }
+
         const elapsedMs = Date.now() - session.startTime.getTime();
-        const elapsedMinutes = Math.round(elapsedMs / 60000);
+        const activeMs = elapsedMs - (totalPauseSeconds * 1000);
+        const elapsedMinutes = Math.max(0, Math.round(activeMs / 60000));
 
         return {
             ...session,

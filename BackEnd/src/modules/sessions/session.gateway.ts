@@ -109,6 +109,16 @@ export class SessionGateway implements OnGatewayConnection, OnGatewayDisconnect,
         this.server.to(`user:${userId}`).emit('session:stopped', session);
     }
 
+    // Broadcast session paused event
+    emitSessionPaused(userId: string, session: any) {
+        this.server.to(`user:${userId}`).emit('session:paused', session);
+    }
+
+    // Broadcast session resumed event
+    emitSessionResumed(userId: string, session: any) {
+        this.server.to(`user:${userId}`).emit('session:resumed', session);
+    }
+
     // Broadcast timer update (called periodically)
     emitTimerUpdate(userId: string, data: { sessionId: string; elapsedSeconds: number }) {
         this.server.to(`user:${userId}`).emit('timer:update', data);

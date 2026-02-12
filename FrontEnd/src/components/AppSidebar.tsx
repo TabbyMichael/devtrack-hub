@@ -3,6 +3,7 @@ import { LayoutDashboard, FolderKanban, BarChart3, User, Settings, LogOut, Timer
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from './ThemeToggle';
 
 const navItems = [
   { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -73,13 +74,18 @@ const AppSidebar = () => {
         </button>
       </div>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="flex h-10 items-center justify-center border-t border-border text-muted-foreground transition-colors hover:text-foreground"
-      >
-        {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-      </button>
+      {/* Theme Toggle & Collapse */}
+      <div className="flex flex-col border-t border-border">
+        <ThemeToggle className={cn("w-full h-10 rounded-none border-b border-border text-muted-foreground hover:text-foreground", collapsed ? "px-0" : "px-4 justify-start gap-3")} />
+        {!collapsed && <span className="sr-only">Toggle Theme</span>}
+
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex h-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
     </aside>
   );
 };

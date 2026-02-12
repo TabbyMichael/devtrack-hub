@@ -5,6 +5,7 @@ import {
     Body,
     Param,
     Delete,
+    Patch,
     UseGuards,
     Query,
     ParseIntPipe,
@@ -49,6 +50,24 @@ export class SessionsController {
         @Body() dto: StopSessionDto,
     ) {
         return this.sessionsService.stop(userId, id, dto);
+    }
+
+    @Patch(':id/pause')
+    @ApiOperation({ summary: 'Pause an active session' })
+    @ApiResponse({ status: 200, description: 'Session paused successfully' })
+    @ApiResponse({ status: 404, description: 'Session not found' })
+    @ApiResponse({ status: 400, description: 'Session already paused or not active' })
+    pause(@GetUser('id') userId: string, @Param('id') id: string) {
+        return this.sessionsService.pause(userId, id);
+    }
+
+    @Patch(':id/resume')
+    @ApiOperation({ summary: 'Resume a paused session' })
+    @ApiResponse({ status: 200, description: 'Session resumed successfully' })
+    @ApiResponse({ status: 404, description: 'Session not found' })
+    @ApiResponse({ status: 400, description: 'Session not paused or not active' })
+    resume(@GetUser('id') userId: string, @Param('id') id: string) {
+        return this.sessionsService.resume(userId, id);
     }
 
     @Get('active')
