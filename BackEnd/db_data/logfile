@@ -23,3 +23,10 @@
 	
 2026-02-12 03:27:54.012 PST [12016] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
 	
+2026-02-12 03:33:16.175 PST [12648] LOG:  starting PostgreSQL 18.1 on x86_64-windows, compiled by msvc-19.44.35221, 64-bit
+2026-02-12 03:33:16.179 PST [12648] LOG:  listening on IPv6 address "::1", port 5433
+2026-02-12 03:33:16.179 PST [12648] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-02-12 03:33:16.251 PST [5960] LOG:  database system was interrupted; last known up at 2026-02-12 03:20:53 PST
+2026-02-12 03:33:23.644 PST [5960] LOG:  could not open file "./logfile": sharing violation
+2026-02-12 03:33:23.644 PST [5960] DETAIL:  Continuing to retry for 30 seconds.
+2026-02-12 03:33:23.644 PST [5960] HINT:  You might have antivirus, backup, or similar software interfering with the database system.

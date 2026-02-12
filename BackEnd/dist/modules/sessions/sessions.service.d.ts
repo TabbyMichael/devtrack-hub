@@ -9,46 +9,46 @@ export declare class SessionsService {
     constructor(prisma: PrismaService, sessionGateway: SessionGateway);
     start(userId: string, dto: StartSessionDto): Promise<{
         project: {
-            id: string;
             name: string;
+            id: string;
             color: string;
         };
         id: string;
+        createdAt: Date;
+        projectId: string;
+        notes: string;
         startTime: Date;
         endTime: Date;
         durationMinutes: number;
-        notes: string;
-        createdAt: Date;
-        projectId: string;
     }>;
     stop(userId: string, sessionId: string, dto: StopSessionDto): Promise<{
         project: {
-            id: string;
             name: string;
+            id: string;
             color: string;
         };
         id: string;
+        createdAt: Date;
+        projectId: string;
+        notes: string;
         startTime: Date;
         endTime: Date;
         durationMinutes: number;
-        notes: string;
-        createdAt: Date;
-        projectId: string;
     }>;
     findAll(userId: string, page?: number, limit?: number, fromDate?: string, toDate?: string, projectId?: string): Promise<{
         data: {
             project: {
-                id: string;
                 name: string;
+                id: string;
                 color: string;
             };
             id: string;
+            createdAt: Date;
+            projectId: string;
+            notes: string;
             startTime: Date;
             endTime: Date;
             durationMinutes: number;
-            notes: string;
-            createdAt: Date;
-            projectId: string;
         }[];
         meta: {
             total: number;
@@ -59,17 +59,17 @@ export declare class SessionsService {
     }>;
     findOne(userId: string, id: string): Promise<{
         project: {
-            id: string;
             name: string;
+            id: string;
             color: string;
         };
         id: string;
+        createdAt: Date;
+        projectId: string;
+        notes: string;
         startTime: Date;
         endTime: Date;
         durationMinutes: number;
-        notes: string;
-        createdAt: Date;
-        projectId: string;
     }>;
     remove(userId: string, id: string): Promise<{
         message: string;
@@ -77,13 +77,13 @@ export declare class SessionsService {
     getActiveSession(userId: string): Promise<{
         elapsedMinutes: number;
         project: {
-            id: string;
             name: string;
+            id: string;
             color: string;
         };
         id: string;
-        startTime: Date;
         createdAt: Date;
         projectId: string;
+        startTime: Date;
     }>;
 }

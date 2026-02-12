@@ -8,12 +8,12 @@ export declare class AuthController {
         accessToken: string;
         refreshToken: string;
         user: {
-            id: string;
-            createdAt: Date;
-            name: string;
             email: string;
+            name: string;
+            id: string;
             role: import(".prisma/client").$Enums.Role;
             preferences: import(".prisma/client").Prisma.JsonValue;
+            createdAt: Date;
         };
     }>;
     login(dto: LoginDto): Promise<{

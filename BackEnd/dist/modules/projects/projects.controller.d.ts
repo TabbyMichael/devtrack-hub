@@ -4,20 +4,20 @@ export declare class ProjectsController {
     private readonly projectsService;
     constructor(projectsService: ProjectsService);
     create(userId: string, dto: CreateProjectDto): Promise<{
+        description: string;
+        name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
-        description: string;
         color: string;
     }>;
     findAll(userId: string, page: number, limit: number): Promise<{
         data: {
+            description: string;
+            name: string;
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            name: string;
-            description: string;
             color: string;
         }[];
         meta: {
@@ -28,30 +28,30 @@ export declare class ProjectsController {
         };
     }>;
     findOne(userId: string, id: string): Promise<{
+        description: string;
+        name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
-        description: string;
         color: string;
     }>;
     update(userId: string, id: string, dto: UpdateProjectDto): Promise<{
+        description: string;
+        name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
-        description: string;
         color: string;
     }>;
     remove(userId: string, id: string): Promise<{
         message: string;
     }>;
     restore(userId: string, id: string): Promise<{
+        description: string;
+        name: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
-        description: string;
         color: string;
     }>;
 }

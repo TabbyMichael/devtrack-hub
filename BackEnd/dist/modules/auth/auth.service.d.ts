@@ -12,12 +12,12 @@ export declare class AuthService {
         accessToken: string;
         refreshToken: string;
         user: {
-            id: string;
-            createdAt: Date;
-            name: string;
             email: string;
+            name: string;
+            id: string;
             role: import(".prisma/client").$Enums.Role;
             preferences: import(".prisma/client").Prisma.JsonValue;
+            createdAt: Date;
         };
     }>;
     login(dto: LoginDto): Promise<{
@@ -40,12 +40,12 @@ export declare class AuthService {
         message: string;
     }>;
     validateUser(userId: string): Promise<{
-        id: string;
-        createdAt: Date;
-        name: string;
         email: string;
+        name: string;
+        id: string;
         role: import(".prisma/client").$Enums.Role;
         preferences: import(".prisma/client").Prisma.JsonValue;
+        createdAt: Date;
     }>;
     generateTokens(userId: string, email: string, role: string): Promise<{
         accessToken: string;
