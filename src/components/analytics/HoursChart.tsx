@@ -1,16 +1,20 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useSessionStore } from '@/stores/sessionStore';
 
-const data = [
-  { day: 'Mon', hours: 4.2 },
-  { day: 'Tue', hours: 5.8 },
-  { day: 'Wed', hours: 3.5 },
-  { day: 'Thu', hours: 6.1 },
-  { day: 'Fri', hours: 4.7 },
-  { day: 'Sat', hours: 2.3 },
-  { day: 'Sun', hours: 1.2 },
-];
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const HoursChart = () => {
+  const sessions = useSessionStore((s) => s.sessions);
+  const today = new Date();
+  const data = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (6 - i));
+    const dateKey = d.toISOString().split('T')[0];
+    const hours = sessions
+      .filter((s) => s.startTime.startsWith(dateKey))
+      .reduce((acc, s) => acc + s.duration, 0) / 60;
+    return { day: DAY_LABELS[d.getDay()], hours: Number(hours.toFixed(2)) };
+  });
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <h3 className="mb-4 font-heading text-sm font-semibold uppercase tracking-wider text-muted-foreground">

@@ -8,6 +8,22 @@ const Analytics = () => {
   const sessions = useSessionStore((s) => s.sessions);
   const totalHours = sessions.reduce((acc, s) => acc + s.duration, 0) / 60;
   const avgDaily = totalHours / 7;
+  const streak = (() => {
+    const dates = Array.from(new Set(sessions.map((s) => s.startTime.split('T')[0]))).sort().reverse();
+    let count = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = d.toISOString().split('T')[0];
+      if (dates.includes(key)) {
+        count += 1;
+      } else {
+        break;
+      }
+    }
+    return count;
+  })();
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
@@ -42,7 +58,7 @@ const Analytics = () => {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Current Streak</p>
-            <p className="font-heading text-2xl font-bold">7 days</p>
+            <p className="font-heading text-2xl font-bold">{streak} days</p>
           </div>
         </div>
       </div>

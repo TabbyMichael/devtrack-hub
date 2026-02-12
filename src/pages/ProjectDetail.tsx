@@ -33,7 +33,7 @@ const ProjectDetail = () => {
       <div className="mb-8 flex items-center gap-4">
         <div
           className="flex h-12 w-12 items-center justify-center rounded-xl text-lg font-bold"
-          style={{ backgroundColor: `${project.color}20`, color: project.color }}
+          style={{ backgroundColor: project.color.replace('hsl(', 'hsla(').replace(')', ', 0.12)'), color: project.color }}
         >
           {project.name.charAt(0)}
         </div>
