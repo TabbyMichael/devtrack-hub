@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String?   // Optional for OAuth users
+  name        String?
+  role        Role      @default(USER)
+  preferences Json      @default("{\"theme\": \"dark\", \"notifications\": true}")
+  githubId    String?   @unique
+  googleId    String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projects    Project[]
+  sessions    Session[]
+  tokens      RefreshToken[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  color       String    // Hex or HSLA string
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete support
+  sessions    Session[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+model Session {
+  id              String    @id @default(uuid())
+  startTime       DateTime
+  endTime         DateTime?
+  durationMinutes Int?      // Computed/stored on stop
+  notes           String?
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId, startTime])
+  @@index([projectId])
+  @@map("sessions")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
