@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { useProjectStore } from '@/stores/projectStore';
+import { useSessionStore } from '@/stores/sessionStore';
 
 const COLORS = [
   'hsl(199, 89%, 48%)',
@@ -11,10 +12,15 @@ const COLORS = [
 
 const ProjectPieChart = () => {
   const projects = useProjectStore((s) => s.projects);
+  const sessions = useSessionStore((s) => s.sessions);
 
+  const hoursByProject: Record<string, number> = {};
+  sessions.forEach((s) => {
+    hoursByProject[s.projectId] = (hoursByProject[s.projectId] || 0) + s.duration / 60;
+  });
   const data = projects.map((p) => ({
     name: p.name,
-    value: p.totalHours,
+    value: Number((hoursByProject[p.id] || 0).toFixed(2)),
   }));
 
   return (

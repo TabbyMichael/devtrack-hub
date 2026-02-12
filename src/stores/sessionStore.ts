@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Session, ActiveSession } from '@/types';
 
 interface SessionState {
@@ -19,7 +20,7 @@ const mockSessions: Session[] = [
   { id: '8', projectId: '2', projectName: 'Portfolio Site', startTime: '2026-02-09T11:00:00', endTime: '2026-02-09T12:00:00', duration: 60, notes: 'Contact form' },
 ];
 
-export const useSessionStore = create<SessionState>((set) => ({
+export const useSessionStore = create<SessionState>()(persist((set) => ({
   sessions: mockSessions,
   activeSession: null,
 
@@ -51,4 +52,4 @@ export const useSessionStore = create<SessionState>((set) => ({
         activeSession: null,
       };
     }),
-}));
+}), { name: 'devtrack-sessions' }));

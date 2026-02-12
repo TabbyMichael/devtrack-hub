@@ -11,7 +11,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
       <div className="mb-4 flex items-center gap-3">
         <div
           className="flex h-10 w-10 items-center justify-center rounded-lg"
-          style={{ backgroundColor: `${project.color}20`, color: project.color }}
+          style={{ backgroundColor: project.color.replace('hsl(', 'hsla(').replace(')', ', 0.12)'), color: project.color }}
         >
           <FolderKanban className="h-5 w-5" />
         </div>

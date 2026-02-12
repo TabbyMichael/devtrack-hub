@@ -13,9 +13,14 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  if (isAuthenticated) {
+    navigate('/dashboard');
+    return null;
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password.trim()) {

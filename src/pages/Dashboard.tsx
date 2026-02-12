@@ -11,8 +11,9 @@ const Dashboard = () => {
   const sessions = useSessionStore((s) => s.sessions);
   const projects = useProjectStore((s) => s.projects);
 
+  const todayDate = new Date().toISOString().split('T')[0]
   const todayHours = sessions
-    .filter((s) => s.startTime.startsWith('2026-02-12'))
+    .filter((s) => s.startTime.startsWith(todayDate))
     .reduce((acc, s) => acc + s.duration, 0) / 60;
 
   const weekHours = sessions.reduce((acc, s) => acc + s.duration, 0) / 60;

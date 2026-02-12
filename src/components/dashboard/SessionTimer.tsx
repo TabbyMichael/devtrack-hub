@@ -11,6 +11,7 @@ const SessionTimer = () => {
   const projects = useProjectStore((s) => s.projects);
   const [selectedProject, setSelectedProject] = useState('');
   const [elapsed, setElapsed] = useState(0);
+  const [notes, setNotes] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,7 +46,8 @@ const SessionTimer = () => {
   };
 
   const handleStop = () => {
-    stopSession();
+    stopSession(notes.trim() ? notes : undefined);
+    setNotes('');
     toast({ title: 'Session saved', description: 'Your session has been recorded.' });
   };
 
@@ -90,10 +92,19 @@ const SessionTimer = () => {
           </Button>
         </div>
       ) : (
-        <Button onClick={handleStop} variant="destructive" className="w-full gap-2">
-          <Square className="h-4 w-4" />
-          Stop Session
-        </Button>
+        <div className="space-y-3">
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Optional notes..."
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            maxLength={200}
+          />
+          <Button onClick={handleStop} variant="destructive" className="w-full gap-2">
+            <Square className="h-4 w-4" />
+            Stop Session
+          </Button>
+        </div>
       )}
     </div>
   );
