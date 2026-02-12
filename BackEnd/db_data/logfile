@@ -1,0 +1,25 @@
+2026-02-12 03:14:00.338 PST [22484] LOG:  starting PostgreSQL 18.1 on x86_64-windows, compiled by msvc-19.44.35221, 64-bit
+2026-02-12 03:14:00.341 PST [22484] LOG:  listening on IPv6 address "::1", port 5433
+2026-02-12 03:14:00.341 PST [22484] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-02-12 03:14:00.496 PST [15296] LOG:  database system was shut down at 2026-02-12 03:13:24 PST
+2026-02-12 03:14:00.505 PST [22484] LOG:  database system is ready to accept connections
+2026-02-12 03:15:04.089 PST [9600] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:25.985 PST [9212] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:26.105 PST [27628] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:26.232 PST [21352] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:26.256 PST [10676] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:26.258 PST [4088] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:15:45.299 PST [26552] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:19:00.408 PST [20312] LOG:  checkpoint starting: time
+2026-02-12 03:20:53.807 PST [20312] LOG:  checkpoint complete: wrote 1043 buffers (6.4%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=113.017 s, sync=0.263 s, total=113.400 s; sync files=336, longest=0.005 s, average=0.001 s; distance=5123 kB, estimate=5123 kB; lsn=0/1CF2348, redo lsn=0/1CF22B8
+2026-02-12 03:26:23.285 PST [1792] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
+2026-02-12 03:27:54.012 PST [12016] LOG:  could not receive data from client: An existing connection was forcibly closed by the remote host.
+	
