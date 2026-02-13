@@ -15,55 +15,130 @@ enum Role {
   ADMIN
 }
 
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
 model User {
-  id          String    @id @default(uuid())
-  email       String    @unique
-  password    String?   // Optional for OAuth users
-  name        String?
-  role        Role      @default(USER)
-  preferences Json      @default("{\"theme\": \"dark\", \"notifications\": true}")
-  githubId    String?   @unique
-  googleId    String?   @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  projects    Project[]
-  sessions    Session[]
-  tokens      RefreshToken[]
+  id                       String         @id @default(uuid())
+  email                    String         @unique
+  password                 String? // Optional for OAuth users
+  name                     String?
+  role                     Role           @default(USER)
+  preferences              Json           @default("{\"theme\": \"dark\", \"notifications\": true}")
+  githubId                 String?        @unique
+  googleId                 String?        @unique
+  resetPasswordToken       String?        @unique
+  resetPasswordExpires     DateTime?
+  emailVerified            Boolean        @default(false)
+  emailVerificationToken   String?
+  emailVerificationExpires DateTime?
+  currentTeamId            String?
+  teamMemberships          TeamMember[]
+  subscription             Subscription?
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  projects                 Project[]
+  sessions                 Session[]
+  tokens                   RefreshToken[]
 
   @@map("users")
+}
+
+model Team {
+  id             String        @id @default(uuid())
+  name           String
+  slug           String        @unique
+  description    String?
+  avatar         String?
+  members        TeamMember[]
+  projects       Project[]
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId     String
+  team       Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  role       TeamRole  @default(MEMBER)
+  invitedBy  String?
+  invitedAt  DateTime  @default(now())
+  acceptedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model Subscription {
+  id                 String           @id @default(uuid())
+  userId             String?          @unique
+  user               User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId             String?          @unique
+  tier               SubscriptionTier @default(FREE)
+  status             String           @default("active") // active, cancelled, past_due
+  customerId         String? // Stripe customer ID
+  subscriptionId     String? // Stripe subscription ID
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  Team               Team[]
+
+  @@map("subscriptions")
 }
 
 model Project {
   id          String    @id @default(uuid())
   name        String
   description String?
-  color       String    // Hex or HSLA string
-  userId      String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  color       String // Hex or HSLA string
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId      String?
+  team        Team?     @relation(fields: [teamId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime? // Soft delete support
   sessions    Session[]
 
   @@index([userId])
+  @@index([teamId])
   @@map("projects")
 }
 
 model Session {
-  id              String    @id @default(uuid())
-  startTime       DateTime
-  endTime         DateTime?
-  durationMinutes Int?      // Computed/stored on stop
-  notes           String?
-  isPaused        Boolean   @default(false)
-  lastPauseTime   DateTime?
+  id                String    @id @default(uuid())
+  startTime         DateTime
+  endTime           DateTime?
+  durationMinutes   Int? // Computed/stored on stop
+  notes             String?
+  isPaused          Boolean   @default(false)
+  lastPauseTime     DateTime?
   totalPauseSeconds Int       @default(0)
-  projectId       String
-  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  projectId         String
+  project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@index([userId, startTime])
   @@index([projectId])
@@ -82,4 +157,3 @@ model RefreshToken {
   @@index([userId])
   @@map("refresh_tokens")
 }
-

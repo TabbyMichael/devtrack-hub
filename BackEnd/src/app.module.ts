@@ -14,6 +14,7 @@ import { MetricsModule } from './common/metrics/metrics.module';
 import { QueueModule } from './queue/queue.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { CacheConfigModule } from './common/cache/cache.module';
+import { TeamsModule } from './modules/teams/teams.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CacheConfigModule } from './common/cache/cache.module';
     MetricsModule,
     QueueModule,
     CacheConfigModule,
+    TeamsModule,
   ],
   controllers: [],
   providers: [],
