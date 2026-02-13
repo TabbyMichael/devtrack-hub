@@ -1,0 +1,112 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Backend Tests
+  backend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./BackEnd
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: devtrack_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: BackEnd/package-lock.json
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Create test database
+      run: |
+        npx prisma migrate deploy
+        npx prisma generate
+    
+    - name: Run tests
+      run: npm run test
+    
+    - name: Run E2E tests
+      run: npm run test:e2e
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/devtrack_test
+
+  # Frontend Tests
+  frontend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./FrontEnd
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: FrontEnd/package-lock.json
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm run test
+    
+    - name: Run linting
+      run: npm run lint
+
+  # Build and Deploy
+  deploy:
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Build frontend
+      run: |
+        cd FrontEnd
+        npm ci
+        npm run build
+    
+    - name: Build backend
+      run: |
+        cd BackEnd
+        npm ci
+        npm run build
+    
+    # Add deployment steps here based on your hosting platform
+    # - name: Deploy to production
+    #   run: |
+    #     # Your deployment commands

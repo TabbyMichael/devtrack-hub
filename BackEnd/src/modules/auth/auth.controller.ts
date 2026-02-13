@@ -7,9 +7,10 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, RefreshTokenDto } from './dto';
+import { RegisterDto, LoginDto, RefreshTokenDto, ForgotPasswordDto, ResetPasswordDto } from './dto';
 import { JwtAuthGuard, GithubAuthGuard, GoogleAuthGuard } from './guards';
 import { GetUser } from './decorators';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -65,6 +66,23 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getProfile(@GetUser() user: any) {
     return user;
+  }
+
+  // Password reset functionality
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset' })
+  @ApiResponse({ status: 200, description: 'Password reset email sent' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.password);
   }
 
   // GitHub OAuth
