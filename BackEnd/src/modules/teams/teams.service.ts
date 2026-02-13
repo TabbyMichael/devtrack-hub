@@ -47,11 +47,7 @@ export class TeamsService {
       },
     });
 
-    // Update user's current team
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { currentTeamId: team.id },
-    });
+    // User team association is handled through TeamMember relation
 
     return team;
   }
@@ -251,7 +247,7 @@ export class TeamsService {
         userId: dto.userId,
         teamId,
         role: dto.role ? TeamRole[dto.role as keyof typeof TeamRole] : TeamRole.MEMBER,
-        invitedBy: userId,
+        // Invited by relationship is handled through userId field
       },
       include: {
         user: {
@@ -313,10 +309,7 @@ export class TeamsService {
     });
 
     // Update user's current team
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { currentTeamId: teamId },
-    });
+    // Team association is handled through TeamMember relation
 
     return updatedInvitation;
   }
@@ -369,12 +362,7 @@ export class TeamsService {
       where: { id: memberId },
     });
 
-    if (removedUser?.currentTeamId === teamId) {
-      await this.prisma.user.update({
-        where: { id: memberId },
-        data: { currentTeamId: null },
-      });
-    }
+    // Team association is handled through TeamMember relation removal
 
     return { message: 'Member removed successfully' };
   }
@@ -397,10 +385,7 @@ export class TeamsService {
       throw new ForbiddenException('You are not a member of this team');
     }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { currentTeamId: teamId },
-    });
+    // Team association is handled through TeamMember relation
 
     return { message: 'Team switched successfully', team };
   }

@@ -15,6 +15,8 @@ import { QueueModule } from './queue/queue.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { CacheConfigModule } from './common/cache/cache.module';
 import { TeamsModule } from './modules/teams/teams.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
+import { AiInsightsModule } from './modules/ai-insights/ai-insights.module';
 
 @Module({
   imports: [
@@ -51,6 +53,8 @@ import { TeamsModule } from './modules/teams/teams.module';
     QueueModule,
     CacheConfigModule,
     TeamsModule,
+    WebhooksModule,
+    AiInsightsModule,
   ],
   controllers: [],
   providers: [],
