@@ -17,6 +17,8 @@ export declare class SessionGateway implements OnGatewayConnection, OnGatewayDis
     handleDisconnect(client: AuthenticatedSocket): void;
     emitSessionStarted(userId: string, session: any): void;
     emitSessionStopped(userId: string, session: any): void;
+    emitSessionPaused(userId: string, session: any): void;
+    emitSessionResumed(userId: string, session: any): void;
     emitTimerUpdate(userId: string, data: {
         sessionId: string;
         elapsedSeconds: number;

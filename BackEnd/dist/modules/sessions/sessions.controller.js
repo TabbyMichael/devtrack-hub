@@ -29,6 +29,12 @@ let SessionsController = class SessionsController {
     stop(userId, id, dto) {
         return this.sessionsService.stop(userId, id, dto);
     }
+    pause(userId, id) {
+        return this.sessionsService.pause(userId, id);
+    }
+    resume(userId, id) {
+        return this.sessionsService.resume(userId, id);
+    }
     getActive(userId) {
         return this.sessionsService.getActiveSession(userId);
     }
@@ -68,6 +74,30 @@ __decorate([
     __metadata("design:paramtypes", [String, String, dto_1.StopSessionDto]),
     __metadata("design:returntype", void 0)
 ], SessionsController.prototype, "stop", null);
+__decorate([
+    (0, common_1.Patch)(':id/pause'),
+    (0, swagger_1.ApiOperation)({ summary: 'Pause an active session' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Session paused successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Session not found' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Session already paused or not active' }),
+    __param(0, (0, decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], SessionsController.prototype, "pause", null);
+__decorate([
+    (0, common_1.Patch)(':id/resume'),
+    (0, swagger_1.ApiOperation)({ summary: 'Resume a paused session' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Session resumed successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Session not found' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Session not paused or not active' }),
+    __param(0, (0, decorators_1.GetUser)('id')),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], SessionsController.prototype, "resume", null);
 __decorate([
     (0, common_1.Get)('active'),
     (0, swagger_1.ApiOperation)({ summary: 'Get active session' }),

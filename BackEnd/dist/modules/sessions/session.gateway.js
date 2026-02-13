@@ -77,6 +77,12 @@ let SessionGateway = SessionGateway_1 = class SessionGateway {
     emitSessionStopped(userId, session) {
         this.server.to(`user:${userId}`).emit('session:stopped', session);
     }
+    emitSessionPaused(userId, session) {
+        this.server.to(`user:${userId}`).emit('session:paused', session);
+    }
+    emitSessionResumed(userId, session) {
+        this.server.to(`user:${userId}`).emit('session:resumed', session);
+    }
     emitTimerUpdate(userId, data) {
         this.server.to(`user:${userId}`).emit('timer:update', data);
     }
