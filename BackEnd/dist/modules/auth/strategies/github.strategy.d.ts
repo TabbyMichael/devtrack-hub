@@ -17,6 +17,12 @@ export declare class GithubStrategy extends GithubStrategy_base {
         preferences: import(".prisma/client").Prisma.JsonValue;
         githubId: string | null;
         googleId: string | null;
+        resetPasswordToken: string | null;
+        resetPasswordExpires: Date | null;
+        emailVerified: boolean;
+        emailVerificationToken: string | null;
+        emailVerificationExpires: Date | null;
+        currentTeamId: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;

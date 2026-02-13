@@ -23,6 +23,7 @@ const metrics_module_1 = require("./common/metrics/metrics.module");
 const queue_module_1 = require("./queue/queue.module");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
 const cache_module_1 = require("./common/cache/cache.module");
+const teams_module_1 = require("./modules/teams/teams.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(logger_middleware_1.LoggerMiddleware).forRoutes('*');
@@ -64,6 +65,7 @@ exports.AppModule = AppModule = __decorate([
             metrics_module_1.MetricsModule,
             queue_module_1.QueueModule,
             cache_module_1.CacheConfigModule,
+            teams_module_1.TeamsModule,
         ],
         controllers: [],
         providers: [],
