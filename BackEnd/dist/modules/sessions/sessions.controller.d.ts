@@ -30,6 +30,36 @@ export declare class SessionsController {
         startTime: Date;
         endTime: Date;
         durationMinutes: number;
+        isPaused: boolean;
+        totalPauseSeconds: number;
+    }>;
+    pause(userId: string, id: string): Promise<{
+        id: string;
+        startTime: Date;
+        endTime: Date | null;
+        durationMinutes: number | null;
+        notes: string | null;
+        isPaused: boolean;
+        lastPauseTime: Date | null;
+        totalPauseSeconds: number;
+        projectId: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    resume(userId: string, id: string): Promise<{
+        id: string;
+        startTime: Date;
+        endTime: Date | null;
+        durationMinutes: number | null;
+        notes: string | null;
+        isPaused: boolean;
+        lastPauseTime: Date | null;
+        totalPauseSeconds: number;
+        projectId: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getActive(userId: string): Promise<{
         elapsedMinutes: number;
@@ -42,6 +72,9 @@ export declare class SessionsController {
         createdAt: Date;
         projectId: string;
         startTime: Date;
+        isPaused: boolean;
+        lastPauseTime: Date;
+        totalPauseSeconds: number;
     }>;
     findAll(userId: string, page: number, limit: number, fromDate?: string, toDate?: string, projectId?: string): Promise<{
         data: {

@@ -83,8 +83,14 @@ let SessionsService = class SessionsService {
             throw new common_1.BadRequestException('Session already stopped');
         }
         const endTime = new Date();
-        const durationMs = endTime.getTime() - session.startTime.getTime();
-        const durationMinutes = Math.round(durationMs / 60000);
+        let totalPauseSeconds = session.totalPauseSeconds;
+        if (session.isPaused && session.lastPauseTime) {
+            const currentPauseMs = endTime.getTime() - session.lastPauseTime.getTime();
+            totalPauseSeconds += Math.round(currentPauseMs / 1000);
+        }
+        const totalElapsedMs = endTime.getTime() - session.startTime.getTime();
+        const durationMs = totalElapsedMs - (totalPauseSeconds * 1000);
+        const durationMinutes = Math.max(0, Math.round(durationMs / 60000));
         if (durationMinutes < this.MIN_DURATION_MINUTES) {
             throw new common_1.BadRequestException(`Session duration must be at least ${this.MIN_DURATION_MINUTES} minute(s)`);
         }
@@ -97,6 +103,8 @@ let SessionsService = class SessionsService {
                 endTime,
                 durationMinutes,
                 notes: dto.notes,
+                isPaused: false,
+                totalPauseSeconds,
             },
             select: {
                 id: true,
@@ -105,6 +113,8 @@ let SessionsService = class SessionsService {
                 durationMinutes: true,
                 notes: true,
                 projectId: true,
+                isPaused: true,
+                totalPauseSeconds: true,
                 project: {
                     select: {
                         id: true,
@@ -116,6 +126,50 @@ let SessionsService = class SessionsService {
             },
         });
         this.sessionGateway.emitSessionStopped(userId, updatedSession);
+        return updatedSession;
+    }
+    async pause(userId, sessionId) {
+        const session = await this.prisma.session.findFirst({
+            where: { id: sessionId, userId, endTime: null },
+        });
+        if (!session) {
+            throw new common_1.NotFoundException('Active session not found');
+        }
+        if (session.isPaused) {
+            throw new common_1.BadRequestException('Session already paused');
+        }
+        const updatedSession = await this.prisma.session.update({
+            where: { id: sessionId },
+            data: {
+                isPaused: true,
+                lastPauseTime: new Date(),
+            },
+        });
+        this.sessionGateway.emitSessionPaused(userId, updatedSession);
+        return updatedSession;
+    }
+    async resume(userId, sessionId) {
+        const session = await this.prisma.session.findFirst({
+            where: { id: sessionId, userId, endTime: null },
+        });
+        if (!session) {
+            throw new common_1.NotFoundException('Active session not found');
+        }
+        if (!session.isPaused) {
+            throw new common_1.BadRequestException('Session is not paused');
+        }
+        const now = new Date();
+        const pauseDurationMs = now.getTime() - (session.lastPauseTime?.getTime() || now.getTime());
+        const additionalPauseSeconds = Math.round(pauseDurationMs / 1000);
+        const updatedSession = await this.prisma.session.update({
+            where: { id: sessionId },
+            data: {
+                isPaused: false,
+                lastPauseTime: null,
+                totalPauseSeconds: session.totalPauseSeconds + additionalPauseSeconds,
+            },
+        });
+        this.sessionGateway.emitSessionResumed(userId, updatedSession);
         return updatedSession;
     }
     async findAll(userId, page = 1, limit = 20, fromDate, toDate, projectId) {
@@ -216,6 +270,9 @@ let SessionsService = class SessionsService {
                 id: true,
                 startTime: true,
                 projectId: true,
+                isPaused: true,
+                lastPauseTime: true,
+                totalPauseSeconds: true,
                 project: {
                     select: {
                         id: true,
@@ -229,8 +286,14 @@ let SessionsService = class SessionsService {
         if (!session) {
             return null;
         }
+        let totalPauseSeconds = session.totalPauseSeconds;
+        if (session.isPaused && session.lastPauseTime) {
+            const currentPauseMs = Date.now() - session.lastPauseTime.getTime();
+            totalPauseSeconds += Math.round(currentPauseMs / 1000);
+        }
         const elapsedMs = Date.now() - session.startTime.getTime();
-        const elapsedMinutes = Math.round(elapsedMs / 60000);
+        const activeMs = elapsedMs - (totalPauseSeconds * 1000);
+        const elapsedMinutes = Math.max(0, Math.round(activeMs / 60000));
         return {
             ...session,
             elapsedMinutes,

@@ -34,6 +34,36 @@ export declare class SessionsService {
         startTime: Date;
         endTime: Date;
         durationMinutes: number;
+        isPaused: boolean;
+        totalPauseSeconds: number;
+    }>;
+    pause(userId: string, sessionId: string): Promise<{
+        id: string;
+        startTime: Date;
+        endTime: Date | null;
+        durationMinutes: number | null;
+        notes: string | null;
+        isPaused: boolean;
+        lastPauseTime: Date | null;
+        totalPauseSeconds: number;
+        projectId: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
+    }>;
+    resume(userId: string, sessionId: string): Promise<{
+        id: string;
+        startTime: Date;
+        endTime: Date | null;
+        durationMinutes: number | null;
+        notes: string | null;
+        isPaused: boolean;
+        lastPauseTime: Date | null;
+        totalPauseSeconds: number;
+        projectId: string;
+        userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findAll(userId: string, page?: number, limit?: number, fromDate?: string, toDate?: string, projectId?: string): Promise<{
         data: {
@@ -85,5 +115,8 @@ export declare class SessionsService {
         createdAt: Date;
         projectId: string;
         startTime: Date;
+        isPaused: boolean;
+        lastPauseTime: Date;
+        totalPauseSeconds: number;
     }>;
 }
