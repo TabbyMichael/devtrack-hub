@@ -1,55 +1,118 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { Project } from '@/types';
+import { apiService } from '@/services/api';
 
 interface ProjectState {
   projects: Project[];
-  addProject: (project: Omit<Project, 'id' | 'totalHours' | 'sessionsCount' | 'createdAt' | 'status' | 'priority'>) => void;
-  updateProject: (id: string, project: Partial<Project>) => void;
-  deleteProject: (id: string) => void;
-  toggleArchive: (id: string) => void;
+  loading: boolean;
+  error: string | null;
+  fetchProjects: (page?: number, limit?: number) => Promise<void>;
+  addProject: (project: Omit<Project, 'id' | 'totalHours' | 'sessionsCount' | 'createdAt' | 'status' | 'priority'>) => Promise<void>;
+  updateProject: (id: string, project: Partial<Project>) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
+  restoreProject: (id: string) => Promise<void>;
+  toggleArchive: (id: string) => Promise<void>;
 }
 
-const mockProjects: Project[] = [
-  { id: '1', name: 'DevTrack', description: 'Developer productivity dashboard', color: 'hsl(199, 89%, 48%)', totalHours: 24.5, sessionsCount: 18, createdAt: '2026-01-15', status: 'active', priority: 'high' },
-  { id: '2', name: 'Portfolio Site', description: 'Personal portfolio website', color: 'hsl(152, 60%, 48%)', totalHours: 12.3, sessionsCount: 8, createdAt: '2026-01-20', status: 'active', priority: 'medium' },
-  { id: '3', name: 'API Gateway', description: 'Microservice API gateway', color: 'hsl(280, 65%, 60%)', totalHours: 8.7, sessionsCount: 5, createdAt: '2026-02-01', status: 'active', priority: 'high' },
-  { id: '4', name: 'Mobile App', description: 'Cross-platform mobile application', color: 'hsl(35, 92%, 60%)', totalHours: 15.1, sessionsCount: 12, createdAt: '2026-02-05', status: 'active', priority: 'medium' },
-  { id: '5', name: 'Data Pipeline', description: 'ETL data processing pipeline', color: 'hsl(340, 75%, 55%)', totalHours: 6.2, sessionsCount: 4, createdAt: '2026-02-08', status: 'active', priority: 'low' },
-];
+export const useProjectStore = create<ProjectState>()(
+  persist(
+    (set) => ({
+      projects: [],
+      loading: false,
+      error: null,
 
-export const useProjectStore = create<ProjectState>((set) => ({
-  projects: mockProjects,
+      fetchProjects: async (page = 1, limit = 20) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.get('/v1/projects', { page: page.toString(), limit: limit.toString() });
+          if (!response.ok) throw new Error('Failed to fetch projects');
+          const data = await response.json();
+          set({ projects: data.data, loading: false });
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
 
-  addProject: (project) =>
-    set((state) => ({
-      projects: [
-        ...state.projects,
-        {
-          ...project,
-          id: String(Date.now()),
-          totalHours: 0,
-          sessionsCount: 0,
-          createdAt: new Date().toISOString().split('T')[0],
-          status: 'active',
-          priority: 'medium',
-        },
-      ],
-    })),
+      addProject: async (project) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.post('/v1/projects', project);
+          if (!response.ok) throw new Error('Failed to create project');
+          const newProject = await response.json();
+          set((state) => ({ projects: [...state.projects, newProject], loading: false }));
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
 
-  updateProject: (id, updatedProject) =>
-    set((state) => ({
-      projects: state.projects.map((p) => (p.id === id ? { ...p, ...updatedProject } : p)),
-    })),
+      updateProject: async (id, updatedProject) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.patch(`/v1/projects/${id}`, updatedProject);
+          if (!response.ok) throw new Error('Failed to update project');
+          const updatedProj = await response.json();
+          set((state) => ({
+            projects: state.projects.map((p) => (p.id === id ? { ...p, ...updatedProj } : p)),
+            loading: false,
+          }));
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
 
-  deleteProject: (id) =>
-    set((state) => ({
-      projects: state.projects.filter((p) => p.id !== id),
-    })),
+      deleteProject: async (id) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.delete(`/v1/projects/${id}`);
+          if (!response.ok) throw new Error('Failed to delete project');
+          set((state) => ({
+            projects: state.projects.map((p) => 
+              p.id === id ? { ...p, deletedAt: new Date().toISOString() } : p
+            ),
+            loading: false,
+          }));
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
 
-  toggleArchive: (id) =>
-    set((state) => ({
-      projects: state.projects.map((p) =>
-        p.id === id ? { ...p, status: p.status === 'active' ? 'archived' : 'active' } : p
-      ),
-    })),
-}));
+      restoreProject: async (id) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.post(`/v1/projects/${id}/restore`);
+          if (!response.ok) throw new Error('Failed to restore project');
+          const restoredProject = await response.json();
+          set((state) => ({
+            projects: state.projects.map((p) => (p.id === id ? restoredProject : p)),
+            loading: false,
+          }));
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
+
+      toggleArchive: async (id) => {
+        set({ loading: true, error: null });
+        try {
+          const response = await apiService.get(`/v1/projects/${id}`);
+          if (!response.ok) throw new Error('Failed to fetch project');
+          const project = await response.json();
+          const newStatus = project.status === 'active' ? 'archived' : 'active';
+          const updateResponse = await apiService.patch(`/v1/projects/${id}`, { status: newStatus });
+          if (!updateResponse.ok) throw new Error('Failed to update project status');
+          const updatedProject = await updateResponse.json();
+          set((state) => ({
+            projects: state.projects.map((p) =>
+              p.id === id ? { ...p, status: updatedProject.status } : p
+            ),
+            loading: false,
+          }));
+        } catch (error) {
+          set({ error: error.message, loading: false });
+        }
+      },
+    }),
+    { name: 'devtrack-projects' }
+  )
+);
