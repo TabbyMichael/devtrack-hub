@@ -26,6 +26,8 @@ model User {
   projects                 Project[]
   tokens                   RefreshToken[]
   sessions                 Session[]
+  teamMembers              TeamMember[]
+  webhooks                 Webhook[]
 
   @@map("users")
 }
@@ -40,6 +42,8 @@ model Project {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId      String?
+  team        Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
   sessions    Session[]
 
   @@index([userId])
@@ -61,6 +65,8 @@ model Session {
   updatedAt         DateTime  @updatedAt
   project           Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId            String?
+  team              Team?     @relation(fields: [teamId], references: [id], onDelete: SetNull)
 
   @@index([userId, startTime])
   @@index([projectId])
@@ -80,7 +86,122 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
+model Team {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  description  String?
+  avatar       String?
+  members      TeamMember[]
+  projects     Project[]
+  sessions     Session[]
+  subscription Subscription?
+  subscriptionId String?     @unique
+  webhooks     Webhook[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id         String   @id @default(uuid())
+  userId     String
+  teamId     String
+  role       TeamRole
+  acceptedAt DateTime?
+  invitedAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+  @@map("team_members")
+}
+
+model Subscription {
+  id                  String         @id @default(uuid())
+  teamId              String         @unique
+  plan                SubscriptionPlan
+  status              SubscriptionStatus
+  currentPeriodStart  DateTime
+  currentPeriodEnd    DateTime
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  team                Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Webhook {
+  id        String       @id @default(uuid())
+  name      String
+  url       String
+  secret    String?
+  events    WebhookEvent[]
+  status    WebhookStatus @default(ACTIVE)
+  teamId    String
+  createdBy String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  logs      WebhookLog[]
+
+  @@index([teamId])
+  @@map("webhooks")
+}
+
+model WebhookLog {
+  id         String       @id @default(uuid())
+  webhookId  String
+  event      WebhookEvent
+  payload    Json
+  status     Int
+  response   String?
+  error      String?
+  createdAt  DateTime     @default(now())
+  webhook    Webhook      @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, createdAt])
+  @@map("webhook_logs")
+}
+
 enum Role {
   USER
   ADMIN
+}
+
+enum TeamRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+}
+
+enum WebhookEvent {
+  SESSION_STARTED
+  SESSION_STOPPED
+  PROJECT_CREATED
+  PROJECT_UPDATED
+  TEAM_MEMBER_ADDED
+  TEAM_MEMBER_REMOVED
+}
+
+enum WebhookStatus {
+  ACTIVE
+  INACTIVE
+  DISABLED
 }
