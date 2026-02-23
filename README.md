@@ -297,7 +297,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, please open an issue on GitHub or contact our team at support@devtrackhub.com.
+For support, please open an issue on GitHub or contact our team at kibuguian@gmail.com.
 
 ---
 
