@@ -21,6 +21,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useSettingsStore } from '@/stores/settingsStore';
+import heroImage from '@/assets/hero-dashboard.jpg';
 
 const Dashboard = () => {
   const user = useAuthStore((s) => s.user);
@@ -238,6 +239,12 @@ const Dashboard = () => {
                 You're 22% more productive between 9 AM and 11 AM. Try scheduling your most complex tasks during this morning window!
               </p>
             </div>
+            <img
+              src={heroImage}
+              alt="Productivity Tip"
+              className="w-24 h-24 object-cover rounded-lg"
+              loading="lazy"
+            />
           </div>
         </motion.div>
       </div>
