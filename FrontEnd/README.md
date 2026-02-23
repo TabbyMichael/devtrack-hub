@@ -1,73 +1,129 @@
-# Welcome to your Lovable project
+# DevTrack Frontend
 
-## Project info
+Welcome to the DevTrack Frontend repository! This application provides a user-friendly interface for tracking projects, sessions, and analytics, helping users manage their development time effectively.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Features
 
-## How can I edit this code?
+*   **Project Management**: Create, view, update, and delete projects.
+*   **Session Tracking**: Start, stop, pause, and resume development sessions.
+*   **Analytics Dashboard**: Visualize daily totals, streaks, and project aggregates.
+*   **Real-time Updates**: WebSocket integration for live session status updates.
+*   **User Authentication**: Secure login and registration with JWT.
+*   **Role-Based Access Control (RBAC)**: Manage user permissions based on roles.
+*   **Responsive UI**: Built with modern UI components for a seamless experience across devices.
 
-There are several ways of editing your application.
+## Technologies Used
 
-**Use Lovable**
+This project is built with a modern frontend stack to ensure a robust, scalable, and maintainable application:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+*   **Framework**: [React](https://react.dev/)
+*   **Language**: [TypeScript](https://www.typescriptlang.org/)
+*   **Build Tool**: [Vite](https://vitejs.dev/)
+*   **State Management**: [Zustand](https://zustand-bear.github.io/blog/)
+*   **UI Components**: [shadcn-ui](https://ui.shadcn.com/)
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+*   **Routing**: [React Router](https://reactrouter.com/en/main)
+*   **API Client**: [Axios](https://axios-http.com/)
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+Follow these instructions to set up and run the DevTrack frontend locally.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Make sure you have the following installed on your machine:
 
-Follow these steps:
+*   [Node.js](https://nodejs.org/en/) (LTS version recommended)
+*   [npm](https://www.npmjs.com/) (comes with Node.js) or [Yarn](https://yarnpkg.com/)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1.  **Clone the repository**:
+    ```bash
+    git clone <YOUR_GIT_URL>
+    cd devtrack-hub/FrontEnd
+    ```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+3.  **Environment Variables**:
+    Create a `.env` file in the `FrontEnd` directory based on `.env.example`.
+    ```
+    VITE_API_BASE_URL=http://localhost:3000/api
+    ```
+    (Adjust the API base URL if your backend is running on a different address/port.)
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Running the Development Server
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+To start the development server with hot-reloading:
+
+```bash
 npm run dev
+# or
+yarn dev
 ```
 
-**Edit a file directly in GitHub**
+The application will typically be available at `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Available Scripts
 
-**Use GitHub Codespaces**
+In the project directory, you can run:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+*   `npm run dev`: Starts the development server.
+*   `npm run build`: Builds the application for production to the `dist` folder.
+*   `npm run lint`: Runs ESLint to check for code quality issues.
+*   `npm run preview`: Serves the production build locally for testing.
 
-## What technologies are used for this project?
+## Project Structure
 
-This project is built with:
+The project follows a standard React application structure:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+FrontEnd/
+├── public/                 # Static assets
+├── src/
+│   ├── assets/             # Images, icons, etc.
+│   ├── components/         # Reusable UI components
+│   │   ├── ui/             # shadcn-ui components
+│   │   └── ...
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility functions and configurations
+│   ├── pages/              # Top-level page components (e.g., Dashboard, Auth)
+│   ├── services/           # API integration and other external services
+│   ├── store/              # Zustand store for global state management
+│   ├── App.tsx             # Main application component
+│   ├── main.tsx            # Entry point of the application
+│   ├── vite-env.d.ts       # Vite environment type definitions
+│   └── ...
+├── .env.example            # Example environment variables
+├── index.html              # Main HTML file
+├── package.json            # Project dependencies and scripts
+├── tailwind.config.js      # Tailwind CSS configuration
+├── tsconfig.json           # TypeScript configuration
+├── vite.config.ts          # Vite build configuration
+└── ...
+```
 
-## How can I deploy this project?
+## Styling
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+This project uses [Tailwind CSS](https://tailwindcss.com/) for utility-first styling and [shadcn-ui](https://ui.shadcn.com/) for accessible and customizable UI components.
 
-## Can I connect a custom domain to my Lovable project?
+## Contribution
 
-Yes, you can!
+We welcome contributions to the DevTrack project! Please follow these steps:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1.  Fork the repository.
+2.  Create a new branch (`git checkout -b feature/your-feature-name`).
+3.  Make your changes.
+4.  Commit your changes (`git commit -m 'feat: Add new feature'`).
+5.  Push to the branch (`git push origin feature/your-feature-name`).
+6.  Open a Pull Request.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Please ensure your code adheres to the project's coding standards and includes appropriate tests.
+
+## License
+
+[Specify your license here, e.g., MIT License]
